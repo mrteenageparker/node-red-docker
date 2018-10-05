@@ -9,8 +9,7 @@ var RED = require("node-red"),
     environment = app.settings.env,
     // bodyParser = require('body-parser'),
     _ = require('underscore'),
-    pouch = require('pouchdb'),
-    cote = require('cote');
+    pouch = require('pouchdb');
 
 var config = require("/usr/src/config/config.js");
 try {

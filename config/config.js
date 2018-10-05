@@ -39,7 +39,7 @@ module.exports = {
         mongoUrl: process.env.MONGO_DATABASE_URL,
         couchUrl: process.env.COUCH_DATABASE_URL,
         pouchFile: process.env.POUCH_DATABASE_FILE,
-        credentialSecret: process.env.CREDENTIALS_SECRET || false,
+        // credentialSecret: process.env.CREDENTIALS_SECRET || false,        
         // the tcp port that the Node-RED web server is listening on
         uiPort: 1880,
         // Retry time in milliseconds for MQTT connections
@@ -281,16 +281,21 @@ module.exports = {
                 }
         }
     }
+
+    returnObj.nodesDir = process.env.NODE_INSTALL_DIR;
+    returnObj.userDir = process.env.FLOW_STORAGE_DIRECTORY;
+
     if (process.env.STORAGE == "mongo") {
         returnObj.storageModule = require("./mongostorage");
     }
     else if (process.env.STORAGE == "couch") {
         returnObj.storageModule = require("./couchstorage");
     } else if (process.env.STORAGE == "pouch") {
+        returnObj.credentialSecret = false;
         returnObj.storageModule = require("./pouchstorage");        
     } else {
         // The file containing the flows. If not set, it defaults to flows_<hostname>.json
-        returnObj.flowFile = process.env.FLOW_NAME;
+        returnObj.flowFile = process.env.FLOW_FILE;
         returnObj.flowFilePretty= false;
     }
     if (process.env.LOG_AUDIT) {

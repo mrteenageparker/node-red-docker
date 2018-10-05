@@ -297,17 +297,21 @@ var pouchstorage = {
         util.log("saveCredentials");
         return when.promise(function(resolve,reject) {
             function retryUntilWritten(doc) {
+              // util.log(doc);
               return flowDb.get(key).then(function (origDoc) {
+                // doc = origDoc;
                 doc._rev = origDoc._rev;
-                return flowDb.put({credentials:credentials});
+                // doc.credentials = credentials;
+                resolve(flowDb.put(doc));
               }).catch(function (err) {
                 if (err.status === 409) {
                   return retryUntilWritten(doc);
                 } else { // new doc
-                  return flowDb.put(doc);
+                  resolve(flowDb.put(doc));
                 }
               });
             }
+            retryUntilWritten({_id:key,credentials: credentials});
 
             // var doc = {_id:key,credentials:credentials};
             // if (currentCredRev) {
@@ -360,18 +364,21 @@ var pouchstorage = {
     saveSettings: function(settings) {
         var key = appname+"/"+"settings";
         util.log("saveSettings");
-        function retryUntilWritten(doc) {
-          return flowDb.get(key).then(function (origDoc) {
-            doc._rev = origDoc._rev;
-            return flowDb.put({credentials:credentials});
-          }).catch(function (err) {
-            if (err.status === 409) {
-              return retryUntilWritten(doc);
-            } else { // new doc
-              return flowDb.put(doc);
+        return when.promise(function(resolve,reject) {        
+            function retryUntilWritten(doc) {
+              return flowDb.get(key).then(function (origDoc) {
+                doc._rev = origDoc._rev;
+                resolve(flowDb.put(doc));
+              }).catch(function (err) {
+                if (err.status === 409) {
+                  retryUntilWritten(doc);
+                } else { // new doc
+                    resolve(flowDb.put(doc));
+                }
+              });
             }
-          });
-        }
+            retryUntilWritten({_id:key,settings: settings})
+        });
 
         // return when.promise(function(resolve,reject) {
         //     var doc = {_id:key,settings:settings};
